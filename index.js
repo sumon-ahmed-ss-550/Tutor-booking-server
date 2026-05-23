@@ -11,45 +11,45 @@ const uri = process.env.MONGODB_URL;
 app.use(cors());
 app.use(express.json());
 
-// const client = new MongoClient(uri, {
-//   serverApi: {
-//     version: ServerApiVersion.v1,
-//     strict: true,
-//     deprecationErrors: true,
-//   },
-// });
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 
-const JWKS = createRemoteJWKSet(
-  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
-);
+// const JWKS = createRemoteJWKSet(
+//   new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+// );
 
-const verifyToken = async (req, res, next) => {
-  const header = req.headers.authorization;
+// const verifyToken = async (req, res, next) => {
+//   const header = req.headers.authorization;
 
-  if (!header) {
-    return res.status(401).json({
-      message: "Unauthorized access",
-    });
-  }
+//   if (!header) {
+//     return res.status(401).json({
+//       message: "Unauthorized access",
+//     });
+//   }
 
-  const token = header.split(" ")[1];
+//   const token = header.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized access",
-    });
-  }
+//   if (!token) {
+//     return res.status(401).json({
+//       message: "Unauthorized access",
+//     });
+//   }
 
-  try {
-    const { payload } = await jwtVerify(token, JWKS);
-    console.log(payload);
-    next();
-  } catch (error) {
-    return res.status(403).json({
-      message: "Forbidden",
-    });
-  }
-};
+//   try {
+//     const { payload } = await jwtVerify(token, JWKS);
+//     console.log(payload);
+//     next();
+//   } catch (error) {
+//     return res.status(403).json({
+//       message: "Forbidden",
+//     });
+//   }
+// };
 
 const run = async () => {
   try {

@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 const uri = process.env.MONGODB_URL;
 
 app.use(cors());
@@ -18,9 +19,41 @@ const client = new MongoClient(uri, {
   },
 });
 
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+);
+
+const verifyToken = async (req, res, next) => {
+  const header = req.headers.authorization;
+
+  if (!header) {
+    return res.status(401).json({
+      message: "Unauthorized access",
+    });
+  }
+
+  const token = header.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized access",
+    });
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    console.log(payload);
+    next();
+  } catch (error) {
+    return res.status(403).json({
+      message: "Forbidden",
+    });
+  }
+};
+
 const run = async () => {
   try {
-    await client.connect();
+    // await client.connect();
 
     const database = client.db("Tutor_booking");
     const collection = database.collection("tutors-data");
@@ -99,7 +132,7 @@ const run = async () => {
     });
 
     // post data of database
-    app.post("/tutors", async (req, res) => {
+    app.post("/tutors", verifyToken, async (req, res) => {
       const data = req.body;
       const result = await collection.insertOne(data);
       res.send(result);
@@ -184,7 +217,7 @@ const run = async () => {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );

@@ -168,25 +168,31 @@ const run = async () => {
     });
 
     // update cancelled booking
-    app.patch("/booking/:id", async (req, res) => {
+    app.patch("/tutors/user/:id", async (req, res) => {
       try {
         const id = req.params.id;
 
-        const result = await bookingCollection.updateOne(
+        const result = await collection.updateOne(
           { _id: new ObjectId(id) },
           {
-            $set: { status: "Cancelled" },
+            $set: req.body,
           },
         );
 
         res.send({
           success: true,
           modifiedCount: result.modifiedCount,
+          message:
+            result.modifiedCount > 0
+              ? "Tutor updated successfully"
+              : "No changes made",
         });
       } catch (error) {
+        console.log(error);
+
         res.status(500).send({
           success: false,
-          message: "Failed to update booking",
+          message: "Failed to update tutor",
           error: error.message,
         });
       }

@@ -59,13 +59,6 @@ const run = async () => {
     const collection = database.collection("tutors-data");
     const bookingCollection = database.collection("booking-data");
 
-    // get all data
-    // app.get("/tutors", async (req, res) => {
-    //   const cursor = collection.find().limit(6);
-    //   const allValues = await cursor.toArray();
-    //   res.send(allValues);
-    // });
-
     app.get("/tutors", async (req, res) => {
       try {
         const { search, after, before } = req.query;
